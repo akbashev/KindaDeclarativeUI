@@ -66,7 +66,13 @@ public struct VerticalStackViewBuilder {
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.isLayoutMarginsRelativeArrangement = true
-        views.compactMap { $0 }.forEach { view in stackView.addArrangedSubview(view.body) }
+        views.compactMap { $0 }.forEach { view in
+            if let stackEachView = view.body as? StackEachView {
+                stackEachView.stackViews.forEach { stackView.addArrangedSubview($0.body) }
+            } else {
+                stackView.addArrangedSubview(view.body)
+            }
+        }
         
         let infiniteWidthViews = views.filter { $0.infiniteWidth == true }.compactMap { $0 }
         let infiniteHeightViews = views.filter { $0.infiniteHeight == true }.compactMap { $0 }

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,6 +11,7 @@
 		7118D50125FE018C00A84FCD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7118D50025FE018C00A84FCD /* ContentView.swift */; };
 		7118D50325FE018D00A84FCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7118D50225FE018D00A84FCD /* Assets.xcassets */; };
 		7118D50625FE018D00A84FCD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7118D50525FE018D00A84FCD /* Preview Assets.xcassets */; };
+		713798B125FE049200A7FB73 /* KindaDeclarativeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 713798B025FE049200A7FB73 /* KindaDeclarativeUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +21,7 @@
 		7118D50225FE018D00A84FCD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7118D50525FE018D00A84FCD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7118D50725FE018D00A84FCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		715640ED25FE047800DAF8F5 /* KindaDeclarativeUI */ = {isa = PBXFileReference; lastKnownFileType = folder; name = KindaDeclarativeUI; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				713798B125FE049200A7FB73 /* KindaDeclarativeUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -36,6 +39,7 @@
 		7118D4F225FE018C00A84FCD = {
 			isa = PBXGroup;
 			children = (
+				715640ED25FE047800DAF8F5 /* KindaDeclarativeUI */,
 				7118D4FD25FE018C00A84FCD /* KindaDeclarativeUIDemo */,
 				7118D4FC25FE018C00A84FCD /* Products */,
 				71A5B22F25FE030C000A8CB4 /* Frameworks */,
@@ -93,6 +97,9 @@
 			dependencies = (
 			);
 			name = KindaDeclarativeUIDemo;
+			packageProductDependencies = (
+				713798B025FE049200A7FB73 /* KindaDeclarativeUI */,
+			);
 			productName = KindaDeclarativeUIDemo;
 			productReference = 7118D4FB25FE018C00A84FCD /* KindaDeclarativeUIDemo.app */;
 			productType = "com.apple.product-type.application";
@@ -336,6 +343,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		713798B025FE049200A7FB73 /* KindaDeclarativeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KindaDeclarativeUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7118D4F325FE018C00A84FCD /* Project object */;
 }

@@ -6,14 +6,40 @@
 //
 
 import SwiftUI
-//import KindaDeclarativeUI
+import KindaDeclarativeUI
 
 struct ContentView: View {
+    
+    @State var buttonClicked: Bool = false
+    
+    var strings = Array(0...2000).map { "Row \($0) "}
+    
     var body: some View {
-        Text("")
-//        StackView {
-//            UILabel("Hey!")
-//        }.swiftUIView
+        VStack {
+            StackList(axis: .vertical) {
+                StackEach(strings, id: \.self) { string in
+                    HorizontalStack {
+                        VerticalStack(alignment: .leading) {
+                            GenerateView {
+                                let label = UILabel()
+                                label.text = string
+                                return label
+                            }
+                            GenerateView {
+                                let label = UILabel()
+                                label.text = "Description"
+                                return label
+                            }
+                        }
+                        GenerateView {
+                            let label = UILabel()
+                            label.text = "next >"
+                            return label
+                        }
+                    }
+                }
+            }.swiftUIView
+        }
     }
 }
 

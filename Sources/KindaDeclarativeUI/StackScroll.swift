@@ -1,5 +1,5 @@
 //
-//  StackScrollView.swift
+//  StackScroll.swift
 //  KindaDeclarativeUI
 //
 //  Created by Jaleel Akbashev on 22.07.20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-public struct StackScrollView: StackView {
+public struct StackScroll: StackView {
     
     public struct Axis: OptionSet {
         public let rawValue: Int
@@ -37,9 +37,10 @@ public struct StackScrollView: StackView {
     
     public var scrollView: UIScrollView
     
-    init(axis: StackScrollView.Axis = .vertical,
-         stackView: StackView) {
+    public init(axis: StackScroll.Axis = .vertical,
+                stackView: StackView) {
         if let uiStackView = stackView.body as? UIStackView {
+            uiStackView.axis = axis.uiStackViewAxis
             uiStackView
                 .getSubviewsOf(StackSpacerView.self)
                 .forEach { $0.removeFromSuperview() }
@@ -56,9 +57,9 @@ public struct StackScrollView: StackView {
         ])
         switch axis {
         case .horizontal:
-          view.heightAnchor.constraint(equalTo: self.scrollView.heightAnchor).isActive = true
+            view.heightAnchor.constraint(equalTo: self.scrollView.heightAnchor).isActive = true
         case .vertical:
-          view.widthAnchor.constraint(equalTo: self.scrollView.widthAnchor).isActive = true
+            view.widthAnchor.constraint(equalTo: self.scrollView.widthAnchor).isActive = true
         default:
             break
         }
@@ -66,32 +67,49 @@ public struct StackScrollView: StackView {
 }
 
 @_functionBuilder
-public struct StackScrollViewBuilder {
+public struct StackScrollBuilder {
     
     public static func buildBlock(_ views: StackView?...) -> StackView {
-        guard views.compactMap({ $0 }).count > 1 else { return views.compactMap { $0 }.first! }
+        func checkIfStackView(_ views: [StackView]) -> StackView? {
+            guard views.count == 1 else {
+                return nil
+            }
+            return views.first as? VerticalStack ?? views.first as? HorizontalStack
+        }
+        
+        func checkIfForEach(_ views: [StackView]) -> StackEachView? {
+            guard views.count == 1 else {
+                return nil
+            }
+            return views.first?.body as? StackEachView
+        }
+        
+        let views = views.compactMap { $0 }
+        if let view = checkIfStackView(views) {
+            return view
+        }
+
         let stackView = UIStackView()
         stackView.distribution = .fill
         stackView.alignment = .center
         stackView.spacing = 0
-        
         stackView.isLayoutMarginsRelativeArrangement = true
-        views.compactMap { $0?.body }.forEach {
-            stackView.addArrangedSubview($0)
-        }
+
+        let subviews = checkIfForEach(views)?.stackViews.map { $0.body } ?? views.compactMap { $0.body }
+        subviews.forEach { stackView.addArrangedSubview($0) }
         return stackView
     }
 }
 
-public extension StackScrollView {
+public extension StackScroll {
     
-    init(axis: StackScrollView.Axis = .vertical,
-         @StackScrollViewBuilder _ content: () -> StackView) {
+    init(axis: StackScroll.Axis = .vertical,
+         @StackScrollBuilder _ content: () -> StackView) {
         self.init(axis: axis, stackView: content())
     }
     
-    init<T>(axis: StackScrollView.Axis = .vertical,
-            @StackScrollViewBuilder _ children: () -> T) where T: StackView {
+    init<T>(axis: StackScroll.Axis = .vertical,
+            @StackScrollBuilder _ children: () -> T) where T: StackView {
         self.init(axis: axis, stackView: children())
     }
     
@@ -106,7 +124,7 @@ private extension UIStackView {
         var subviews = [T]()
         self.arrangedSubviews.forEach { subview in
             if let subStackView = subview as? UIStackView,
-                shouldGoDeeper(for: subStackView) {
+               shouldGoDeeper(for: subStackView) {
                 subviews += subStackView.getSubviewsOf(type) as [T]
             }
             if let subview = subview as? T {

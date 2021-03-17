@@ -8,10 +8,14 @@
 import UIKit
 
 public protocol StackView {
+    typealias Update = (UIView) -> ()
+    
     var body: UIView { get }
     
     var infiniteWidth: Bool { get set }
     var infiniteHeight: Bool { get set }
+    
+    func update()
 }
 
 extension UIView: StackView {
@@ -32,6 +36,8 @@ public extension StackView {
         get { return StackViewAssociationKey.infiniteHeight[self.body] ?? false }
         set { StackViewAssociationKey.infiniteHeight[self.body] = newValue }
     }
+    
+    func update() {}
 }
 
 public extension StackView {
@@ -71,28 +77,52 @@ public extension StackView {
 }
 
 extension NSLayoutConstraint {
-  public func with(priority p: UILayoutPriority) -> NSLayoutConstraint {
-    priority = p
-    return self
-  }
+    public func with(priority p: UILayoutPriority) -> NSLayoutConstraint {
+        priority = p
+        return self
+    }
 }
 
+// EXPERIMENTAL
 #if canImport(SwiftUI)
 import SwiftUI
 
-struct StackViewWrapper: UIViewRepresentable {
-    let stackView: StackView
+public struct UIViewWrapper<View: UIView>: UIViewRepresentable {
+    public typealias Maker = () -> View
+    public typealias Updater = (View, Context) -> ()
     
-    init(_ stackView: StackView) {
-        self.stackView = stackView
+    var makeView: Maker
+    var updateView: Updater?
+    
+    public init(_ makeView: @escaping Maker,
+                updateView: Updater? = nil) {
+        self.makeView = makeView
+        self.updateView = updateView
     }
     
-    func updateUIView(_ uiView: UIView, context: Context) {
-        
+    public func makeUIView(context: Context) -> View {
+        makeView()
     }
     
-    func makeUIView(context: Context) -> UIView {
-        return stackView.body
+    public func updateUIView(_ view: View, context: Context) {
+        updateView?(view, context)
+    }
+}
+
+@available(iOS 13.0, *)
+public extension UIView {
+    var swiftUIView: some View {
+        return UIViewWrapper {
+            return self
+        }
+    }
+    
+    func swiftUIView(_ updateView: ((UIView) -> ())? = nil) -> some View {
+        return UIViewWrapper ({
+            self
+        }, updateView: { _,_  in
+            updateView?(self)
+        })
     }
 }
 
@@ -100,7 +130,49 @@ struct StackViewWrapper: UIViewRepresentable {
 public extension StackView {
     
     var swiftUIView: some View {
-        return StackViewWrapper(self)
+        ContentView(view: self)
     }
 }
+//    func swiftUIView(_ updateView: UIViewWrapper<UIView>.Updater? = nil) -> some View {
+//        return UIViewWrapper ({
+//            self.bodyx
+//        }, updateView: { view, context in
+//            updateView?(view, context)
+//        })
+//    }
+//}
+
+
+@available(iOS 13.0, *)
+private struct ContentView: View {
+    
+    @State var frame: CGSize = .zero
+    
+    private let view: StackView
+    
+    init(view: StackView) {
+        self.view = view
+    }
+    
+    var body: some View {
+        GeometryReader { (geometry) in
+            self.makeView(geometry)
+        }
+    }
+    
+    func makeView(_ geometry: GeometryProxy) -> some View {
+        let targetSize = CGSize(width: self.view.infiniteWidth ? geometry.size.width : UIView.layoutFittingCompressedSize.width, height: self.view.infiniteHeight ? geometry.size.height : UIView.layoutFittingCompressedSize.height)
+        let horizontalFittingPriority: UILayoutPriority = self.view.infiniteWidth ? .required : .fittingSizeLevel
+        let verticalFittingPriority: UILayoutPriority = self.view.infiniteHeight ? .required : .fittingSizeLevel
+        let calculatedSize = self.view.body.systemLayoutSizeFitting(targetSize,
+                                                          withHorizontalFittingPriority: horizontalFittingPriority,
+                                                          verticalFittingPriority: verticalFittingPriority)
+        DispatchQueue.main.async { self.frame = CGSize(width: max(geometry.size.width, calculatedSize.width), height: max(geometry.size.height, calculatedSize.height)) }
+        return UIViewWrapper {
+            return self.view.body
+        }.frame(width: frame.width,
+                height: frame.height, alignment: .center)
+    }
+}
+
 #endif

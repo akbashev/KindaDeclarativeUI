@@ -34,14 +34,20 @@ private struct StackSizeModifier: StackViewModifier {
             if width == CGFloat.infinity || width == CGFloat.greatestFiniteMagnitude {
                 view.infiniteWidth = true
             } else {
-              view.body.widthAnchor.constraint(equalToConstant: width).with(priority: .required - 1).isActive = true
+                let identifier = "io.github.akbashev.stackview.anchorIdentifier.width"
+                let constraint = view.body.constraint(withIdentifier: identifier) ?? view.body.widthAnchor.constraint(equalToConstant: width, identifier: identifier)
+                constraint.constant = width
+                constraint.isActive = true
             }
         }
         if let height = self.height {
             if height == CGFloat.infinity || height == CGFloat.greatestFiniteMagnitude {
                 view.infiniteHeight = true
             } else {
-                view.body.heightAnchor.constraint(equalToConstant: height).with(priority: .required - 1).isActive = true
+                let identifier = "io.github.akbashev.stackview.anchorIdentifier.height"
+                let constraint = view.body.constraint(withIdentifier: identifier) ?? view.body.heightAnchor.constraint(equalToConstant: height, identifier: identifier)
+                constraint.constant = height
+                constraint.isActive = true
             }
         }
         return view
@@ -86,10 +92,10 @@ private struct StackBackgroundColorModifier: StackViewModifier {
     
     func modify(_ view: StackView) -> StackView {
         if let backgroundColor = self.backgroundColor {
-          let backgroundView = UIView()
-          backgroundView.backgroundColor = backgroundColor
-          backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-          view.body.insertSubview(backgroundView, at: 0)
+            let backgroundView = UIView()
+            backgroundView.backgroundColor = backgroundColor
+            backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            view.body.insertSubview(backgroundView, at: 0)
         }
         return view
     }
@@ -127,11 +133,13 @@ private struct StackPaddingModifier: StackViewModifier {
 
 public extension StackView {
     
+    @discardableResult
     func frame(width: CGFloat? = nil, height: CGFloat? = nil) -> StackView {
         let sizeModifier = StackSizeModifier(width: width, height: height)
         return sizeModifier.modify(self)
     }
     
+    @discardableResult
     func border(width borderWidth: CGFloat,
                 color borderColor: UIColor,
                 masksToBounds: Bool = false) -> StackView {
@@ -141,31 +149,37 @@ public extension StackView {
         return borderModifier.modify(self)
     }
     
+    @discardableResult
     func borderWidth(_ borderWidth: CGFloat) -> StackView {
         let borderModifier = StackBorderModifier(borderWidth: borderWidth)
         return borderModifier.modify(self)
     }
     
+    @discardableResult
     func borderColor(_ borderColor: UIColor) -> StackView {
         let borderModifier = StackBorderModifier(borderColor: borderColor.cgColor)
         return borderModifier.modify(self)
     }
-  
+    
+    @discardableResult
     func backgroundColor(_ backgroundColor: UIColor?) -> StackView {
         let backgroundModifier = StackBackgroundColorModifier(backgroundColor: backgroundColor)
         return backgroundModifier.modify(self)
     }
     
+    @discardableResult
     func masksToBounds(_ masksToBounds: Bool) -> StackView {
         let borderModifier = StackBorderModifier(masksToBounds: masksToBounds)
         return borderModifier.modify(self)
     }
     
+    @discardableResult
     func cornerRadius(_ cornerRadius: CGFloat) -> StackView {
         let cornerModifier = StackCornersModifier(cornerRadius: cornerRadius)
         return cornerModifier.modify(self)
     }
     
+    @discardableResult
     func padding(top: CGFloat = 16,
                  left: CGFloat = 16,
                  bottom: CGFloat = 16,
@@ -175,5 +189,19 @@ public extension StackView {
                                                                          bottom: bottom,
                                                                          right: right))
         return paddingModifier.modify(self)
+    }
+}
+
+fileprivate extension NSLayoutDimension {
+    @objc func constraint(equalToConstant constant: CGFloat, identifier: String) -> NSLayoutConstraint {
+        let constraint = self.constraint(equalToConstant: constant)
+        constraint.identifier = identifier
+        return constraint
+    }
+}
+
+fileprivate extension UIView {
+    func constraint(withIdentifier: String) -> NSLayoutConstraint? {
+        return self.constraints.filter { $0.identifier == withIdentifier }.first
     }
 }

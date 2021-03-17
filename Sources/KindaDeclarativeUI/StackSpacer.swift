@@ -22,7 +22,7 @@ public struct StackSpacer: StackView {
             }
         }
     }
-
+    
     public init() {
         self.body = StackSpacerView()
     }
@@ -31,11 +31,11 @@ public struct StackSpacer: StackView {
 class StackSpacerView: UIView {}
 
 extension UIView {
-  var widthAnchorConstraint: NSLayoutConstraint? {
-    return self.constraints.filter({ $0.firstAttribute.rawValue == NSLayoutConstraint.Attribute.width.rawValue }).first
-  }
-  
-  var heightAnchorConstraint: NSLayoutConstraint? {
-    return self.constraints.filter({ $0.firstAttribute.rawValue == NSLayoutConstraint.Attribute.height.rawValue }).first
-  }
+    var widthAnchorConstraint: NSLayoutConstraint? {
+        return self.constraints.filter({ $0.firstAttribute.rawValue == NSLayoutConstraint.Attribute.width.rawValue }).first
+    }
+    
+    var heightAnchorConstraint: NSLayoutConstraint? {
+        return self.constraints.filter({ $0.firstAttribute.rawValue == NSLayoutConstraint.Attribute.height.rawValue }).first
+    }
 }

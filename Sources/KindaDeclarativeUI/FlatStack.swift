@@ -11,7 +11,7 @@ import UIKit
 public struct FlatStack: StackView {
     
     public enum Alignment {
-      case bottom, center, leading, trailing, top, leadingTop, leadingBottom, trailingTop, trailingBottom
+        case bottom, center, leading, trailing, top, leadingTop, leadingBottom, trailingTop, trailingBottom
     }
     
     public var body: UIView
@@ -35,41 +35,41 @@ private class FlatStackView: UIView {
         }
     }
     
-  override var intrinsicContentSize: CGSize {
-    let sizes = self.subviews.map { view -> CGSize in
-      let width: CGFloat = self.subviewWidth[view] ?? view.intrinsicContentSize.width
-      let height: CGFloat = self.subviewHeight[view] ?? view.intrinsicContentSize.height
-      return CGSize(width: width, height: height)
+    override var intrinsicContentSize: CGSize {
+        let sizes = self.subviews.map { view -> CGSize in
+            let width: CGFloat = self.subviewWidth[view] ?? view.intrinsicContentSize.width
+            let height: CGFloat = self.subviewHeight[view] ?? view.intrinsicContentSize.height
+            return CGSize(width: width, height: height)
+        }
+        let width = sizes.map { $0.width }.sorted().last ?? 0.0
+        let height = sizes.map { $0.height }.sorted().last ?? 0.0
+        return CGSize(width: width + self.layoutMargins.left + self.layoutMargins.right,
+                      height: height + self.layoutMargins.top + self.layoutMargins.bottom)
     }
-    let width = sizes.map { $0.width }.sorted().last ?? 0.0
-    let height = sizes.map { $0.height }.sorted().last ?? 0.0
-    return CGSize(width: width + self.layoutMargins.left + self.layoutMargins.right,
-                  height: height + self.layoutMargins.top + self.layoutMargins.bottom)
-  }
-  
+    
     var subviewWidth: [UIView:CGFloat] = [:]
     var subviewHeight: [UIView:CGFloat] = [:]
-
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         let viewWidth = self.bounds.width - self.layoutMargins.left - self.layoutMargins.right
         let viewHeight = self.bounds.height - self.layoutMargins.top - self.layoutMargins.bottom
         self.subviews.forEach { view in
-          
-          if view.infiniteWidth {
-            self.subviewWidth[view] = viewWidth
-          }
-          
-          if view.infiniteHeight {
-            self.subviewHeight[view] = viewHeight
-          }
-          
-          let width: CGFloat = self.subviewWidth[view] ?? view.intrinsicContentSize.width
-          let height: CGFloat = self.subviewHeight[view] ?? view.intrinsicContentSize.height
-
+            
+            if view.infiniteWidth {
+                self.subviewWidth[view] = viewWidth
+            }
+            
+            if view.infiniteHeight {
+                self.subviewHeight[view] = viewHeight
+            }
+            
+            let width: CGFloat = self.subviewWidth[view] ?? view.intrinsicContentSize.width
+            let height: CGFloat = self.subviewHeight[view] ?? view.intrinsicContentSize.height
+            
             let x: CGFloat
             let y: CGFloat
-
+            
             switch self.alignment {
             case .center:
                 x = self.layoutMargins.left + (viewWidth - width) / 2
@@ -87,17 +87,17 @@ private class FlatStackView: UIView {
                 x = self.layoutMargins.left + (viewWidth - width) / 2
                 y = self.layoutMargins.top + viewHeight - height
             case .leadingTop:
-              x = self.layoutMargins.left
-              y = self.layoutMargins.top
+                x = self.layoutMargins.left
+                y = self.layoutMargins.top
             case .leadingBottom:
-              x = self.layoutMargins.left
-              y = self.layoutMargins.top + viewHeight - height
+                x = self.layoutMargins.left
+                y = self.layoutMargins.top + viewHeight - height
             case .trailingTop:
-              x = self.layoutMargins.left + viewWidth - width
-              y = self.layoutMargins.top
+                x = self.layoutMargins.left + viewWidth - width
+                y = self.layoutMargins.top
             case .trailingBottom:
-              x = self.layoutMargins.left + viewWidth - width
-              y = self.layoutMargins.top + viewHeight - height
+                x = self.layoutMargins.left + viewWidth - width
+                y = self.layoutMargins.top + viewHeight - height
             }
             view.frame = CGRect(x: x, y: y, width: width, height: height)
         }
@@ -113,12 +113,12 @@ public struct FlatStackViewBuilder {
         views.filter { $0 as? StackSpacer == nil }.compactMap { $0?.body }.forEach {
             // We need to remove widthAnchor and heightAnchor constant constraints first,
             if let widthAnchorConstraint = $0.widthAnchorConstraint {
-              view.subviewWidth[$0] = widthAnchorConstraint.constant
-              widthAnchorConstraint.isActive = false
+                view.subviewWidth[$0] = widthAnchorConstraint.constant
+                widthAnchorConstraint.isActive = false
             }
             if let heightAnchorConstraint = $0.heightAnchorConstraint {
-              view.subviewHeight[$0] = heightAnchorConstraint.constant
-              heightAnchorConstraint.isActive = false
+                view.subviewHeight[$0] = heightAnchorConstraint.constant
+                heightAnchorConstraint.isActive = false
             }
             // and then add those views.
             view.addSubview($0)
