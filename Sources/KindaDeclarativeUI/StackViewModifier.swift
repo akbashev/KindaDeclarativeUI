@@ -190,6 +190,12 @@ public extension StackView {
                                                                          right: right))
         return paddingModifier.modify(self)
     }
+    
+    @discardableResult
+    func padding(_ padding: UIEdgeInsets) -> StackView {
+        let paddingModifier = StackPaddingModifier(padding: padding)
+        return paddingModifier.modify(self)
+    }
 }
 
 fileprivate extension NSLayoutDimension {

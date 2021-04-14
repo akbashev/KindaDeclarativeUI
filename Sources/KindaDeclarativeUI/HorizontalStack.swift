@@ -52,7 +52,13 @@ public struct HorizontalStack: StackView {
 public struct HorizontalStackViewBuilder {
     
     public static func buildBlock(_ views: StackView?...) -> UIStackView {
-        let views = views.compactMap { $0 }.map { view -> StackView in
+        let views = views.compactMap { view -> [StackView] in
+            if let stackEachView = view?.body as? StackEachView {
+                return stackEachView.stackViews
+            }
+            return [view].compactMap { $0 }
+        }.joined()
+        .map { view -> StackView in
             if var view = view as? StackSpacer {
                 view.axis = .horizontal
                 view.body.setContentCompressionResistancePriority(.defaultLow - 1, for: .horizontal)

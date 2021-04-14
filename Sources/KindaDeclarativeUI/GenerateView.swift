@@ -12,7 +12,19 @@ public struct GenerateView: StackView {
     public var updateView: StackView.Update? = nil
     
     public init(_ generate: () -> UIView, updateView: StackView.Update? = nil) {
-        self.body = generate()
+        let view = generate()
+        self.body = view
+        
+        self.infiniteHeight = view.infiniteHeight
+        self.infiniteWidth = view.infiniteWidth
+    }
+    
+    public init(stack: () -> StackView, updateView: StackView.Update? = nil) {
+        let view = stack().body
+        self.body = view
+        
+        self.infiniteHeight = view.infiniteHeight
+        self.infiniteWidth = view.infiniteWidth
     }
     
     public func update() {

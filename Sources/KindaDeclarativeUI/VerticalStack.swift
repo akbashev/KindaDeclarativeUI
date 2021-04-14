@@ -48,7 +48,13 @@ public struct VerticalStack: StackView {
 public struct VerticalStackViewBuilder {
     
     public static func buildBlock(_ views: StackView?...) -> UIStackView {
-        let views = views.compactMap { $0 }.map { view -> StackView in
+        let views = views.compactMap { view -> [StackView] in
+            if let stackEachView = view?.body as? StackEachView {
+                return stackEachView.stackViews
+            }
+            return [view].compactMap { $0 }
+        }.joined()
+        .map { view -> StackView in
             if var view = view as? StackSpacer {
                 view.axis = .vertical
                 view.body.setContentCompressionResistancePriority(.defaultLow - 1, for: .vertical)
