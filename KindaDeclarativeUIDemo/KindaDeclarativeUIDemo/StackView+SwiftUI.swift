@@ -6,12 +6,10 @@
 //
 
 // EXPERIMENTAL
-
-#if canImport(SwiftUI)
 import SwiftUI
 import UIKit
+import KindaDeclarativeUI
 
-@available(iOS 13.0, *)
 public struct UIViewWrapper<View: UIView>: UIViewRepresentable {
     public typealias Maker = () -> View
     public typealias Updater = (View, Context) -> ()
@@ -34,7 +32,6 @@ public struct UIViewWrapper<View: UIView>: UIViewRepresentable {
     }
 }
 
-@available(iOS 13.0, *)
 public extension UIView {
     var swiftUIView: some View {
         return UIViewWrapper {
@@ -51,17 +48,15 @@ public extension UIView {
     }
 }
 
-@available(iOS 13.0, *)
 public extension StackView {
     
     var swiftUIView: some View {
-        ContentView(view: self)
+        StackViewContentView(view: self)
     }
 }
 
 
-@available(iOS 13.0, *)
-private struct ContentView: View {
+private struct StackViewContentView: View {
     
     @State var frame: CGSize = .zero
     
@@ -92,4 +87,3 @@ private struct ContentView: View {
     }
 }
 
-#endif

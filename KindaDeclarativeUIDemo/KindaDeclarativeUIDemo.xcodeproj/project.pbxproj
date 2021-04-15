@@ -12,6 +12,7 @@
 		7118D50325FE018D00A84FCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7118D50225FE018D00A84FCD /* Assets.xcassets */; };
 		7118D50625FE018D00A84FCD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7118D50525FE018D00A84FCD /* Preview Assets.xcassets */; };
 		713798B125FE049200A7FB73 /* KindaDeclarativeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 713798B025FE049200A7FB73 /* KindaDeclarativeUI */; };
+		718BA682262832AF00FD9F6B /* StackView+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 718BA681262832AF00FD9F6B /* StackView+SwiftUI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		7118D50525FE018D00A84FCD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7118D50725FE018D00A84FCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		715640ED25FE047800DAF8F5 /* KindaDeclarativeUI */ = {isa = PBXFileReference; lastKnownFileType = folder; name = KindaDeclarativeUI; path = ..; sourceTree = "<group>"; };
+		718BA681262832AF00FD9F6B /* StackView+SwiftUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StackView+SwiftUI.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +59,7 @@
 		7118D4FD25FE018C00A84FCD /* KindaDeclarativeUIDemo */ = {
 			isa = PBXGroup;
 			children = (
+				718BA681262832AF00FD9F6B /* StackView+SwiftUI.swift */,
 				7118D4FE25FE018C00A84FCD /* KindaDeclarativeUIDemoApp.swift */,
 				7118D50025FE018C00A84FCD /* ContentView.swift */,
 				7118D50225FE018D00A84FCD /* Assets.xcassets */,
@@ -154,6 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7118D50125FE018C00A84FCD /* ContentView.swift in Sources */,
+				718BA682262832AF00FD9F6B /* StackView+SwiftUI.swift in Sources */,
 				7118D4FF25FE018C00A84FCD /* KindaDeclarativeUIDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
