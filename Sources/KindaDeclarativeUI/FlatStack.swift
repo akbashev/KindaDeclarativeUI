@@ -27,80 +27,99 @@ public struct FlatStack: StackView {
     }
 }
 
-private class FlatStackView: UIView {
+class FlatStackView: UIView {
     
-    var alignment: FlatStack.Alignment = .center {
-        didSet {
-            self.layoutIfNeeded()
+    private var _constraints: [NSLayoutConstraint] = []
+    var alignment: FlatStack.Alignment = .center
+    
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+
+        setNeedsUpdateConstraints()
+    }
+
+    override func updateConstraints() {
+        super.updateConstraints()
+
+        NSLayoutConstraint.deactivate(_constraints)
+        
+        self.subviews.forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            _constraints.append(contentsOf: self.constraints(for: $0))
         }
+        
+        NSLayoutConstraint.activate(_constraints)
     }
     
-    override var intrinsicContentSize: CGSize {
-        let sizes = self.subviews.map { view -> CGSize in
-            let width: CGFloat = self.subviewWidth[view] ?? view.intrinsicContentSize.width
-            let height: CGFloat = self.subviewHeight[view] ?? view.intrinsicContentSize.height
-            return CGSize(width: width, height: height)
+    private func constraints(for subview: UIView) -> [NSLayoutConstraint] {
+        var constraints: [NSLayoutConstraint] = []
+        if subview.infiniteWidth {
+            constraints.append(
+                subview.widthAnchor.constraint(equalTo: layoutMarginsGuide.widthAnchor)
+            )
+        } else {
+            constraints.append(
+                subview.widthAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.widthAnchor)
+            )
         }
-        let width = sizes.map { $0.width }.sorted().last ?? 0.0
-        let height = sizes.map { $0.height }.sorted().last ?? 0.0
-        return CGSize(width: width + self.layoutMargins.left + self.layoutMargins.right,
-                      height: height + self.layoutMargins.top + self.layoutMargins.bottom)
-    }
-    
-    var subviewWidth: [UIView:CGFloat] = [:]
-    var subviewHeight: [UIView:CGFloat] = [:]
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let viewWidth = self.bounds.width - self.layoutMargins.left - self.layoutMargins.right
-        let viewHeight = self.bounds.height - self.layoutMargins.top - self.layoutMargins.bottom
-        self.subviews.forEach { view in
-            
-            if view.infiniteWidth {
-                self.subviewWidth[view] = viewWidth
-            }
-            
-            if view.infiniteHeight {
-                self.subviewHeight[view] = viewHeight
-            }
-            
-            let width: CGFloat = self.subviewWidth[view] ?? view.intrinsicContentSize.width
-            let height: CGFloat = self.subviewHeight[view] ?? view.intrinsicContentSize.height
-            
-            let x: CGFloat
-            let y: CGFloat
-            
-            switch self.alignment {
-            case .center:
-                x = self.layoutMargins.left + (viewWidth - width) / 2
-                y = self.layoutMargins.top + (viewHeight - height) / 2
-            case .leading:
-                x = self.layoutMargins.left
-                y = self.layoutMargins.top + (viewHeight - height) / 2
-            case .top:
-                x = self.layoutMargins.left + (viewWidth - width) / 2
-                y = self.layoutMargins.top
-            case .trailing:
-                x = self.layoutMargins.left + viewWidth - width
-                y = self.layoutMargins.top + (viewHeight - height) / 2
-            case .bottom:
-                x = self.layoutMargins.left + (viewWidth - width) / 2
-                y = self.layoutMargins.top + viewHeight - height
-            case .leadingTop:
-                x = self.layoutMargins.left
-                y = self.layoutMargins.top
-            case .leadingBottom:
-                x = self.layoutMargins.left
-                y = self.layoutMargins.top + viewHeight - height
-            case .trailingTop:
-                x = self.layoutMargins.left + viewWidth - width
-                y = self.layoutMargins.top
-            case .trailingBottom:
-                x = self.layoutMargins.left + viewWidth - width
-                y = self.layoutMargins.top + viewHeight - height
-            }
-            view.frame = CGRect(x: x, y: y, width: width, height: height)
+        if subview.infiniteHeight {
+            constraints.append(
+                subview.heightAnchor.constraint(equalTo: layoutMarginsGuide.heightAnchor)
+            )
+        } else {
+            constraints.append(
+                subview.heightAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.heightAnchor)
+            )
         }
+        
+        switch self.alignment {
+        case .center:
+            constraints.append(contentsOf: [
+                subview.centerYAnchor.constraint(equalTo: layoutMarginsGuide.centerYAnchor),
+                subview.centerXAnchor.constraint(equalTo: layoutMarginsGuide.centerXAnchor),
+            ])
+        case .leading:
+            constraints.append(contentsOf: [
+                subview.centerYAnchor.constraint(equalTo: layoutMarginsGuide.centerYAnchor),
+                subview.leftAnchor.constraint(equalTo: layoutMarginsGuide.leftAnchor)
+            ])
+        case .top:
+            constraints.append(contentsOf: [
+                subview.centerXAnchor.constraint(equalTo: layoutMarginsGuide.centerXAnchor),
+                subview.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+            ])
+        case .trailing:
+            constraints.append(contentsOf: [
+                subview.centerYAnchor.constraint(equalTo: layoutMarginsGuide.centerYAnchor),
+                subview.rightAnchor.constraint(equalTo: layoutMarginsGuide.rightAnchor),
+            ])
+        case .bottom:
+            constraints.append(contentsOf: [
+                subview.centerXAnchor.constraint(equalTo: layoutMarginsGuide.centerXAnchor),
+                subview.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            ])
+        case .leadingTop:
+            constraints.append(contentsOf: [
+                subview.leftAnchor.constraint(equalTo: layoutMarginsGuide.leftAnchor),
+                subview.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+            ])
+        case .leadingBottom:
+            constraints.append(contentsOf: [
+                subview.leftAnchor.constraint(equalTo: layoutMarginsGuide.leftAnchor),
+                subview.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            ])
+        case .trailingTop:
+            constraints.append(contentsOf: [
+                subview.rightAnchor.constraint(equalTo: layoutMarginsGuide.rightAnchor),
+                subview.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+            ])
+        case .trailingBottom:
+            constraints.append(contentsOf: [
+                subview.rightAnchor.constraint(equalTo: layoutMarginsGuide.rightAnchor),
+                subview.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            ])
+        }
+        return constraints
     }
 }
 
@@ -111,16 +130,6 @@ public struct FlatStackViewBuilder {
         var view = FlatStackView()
         view.body.layoutMargins = .zero
         views.filter { $0 as? StackSpacer == nil }.compactMap { $0?.body }.forEach {
-            // We need to remove widthAnchor and heightAnchor constant constraints first,
-            if let widthAnchorConstraint = $0.widthAnchorConstraint {
-                view.subviewWidth[$0] = widthAnchorConstraint.constant
-                widthAnchorConstraint.isActive = false
-            }
-            if let heightAnchorConstraint = $0.heightAnchorConstraint {
-                view.subviewHeight[$0] = heightAnchorConstraint.constant
-                heightAnchorConstraint.isActive = false
-            }
-            // and then add those views.
             view.addSubview($0)
         }
         let infiniteWidthViews = views.compactMap { $0 }.filter { $0.infiniteWidth == true }

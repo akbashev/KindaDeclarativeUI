@@ -139,6 +139,11 @@ class StackCollectionViewCell: UICollectionViewCell {
     }
     
     override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+        if view?.body is FlatStackView {
+            let width: CGFloat = view?.infiniteWidth == true ? targetSize.width : 0
+            let height: CGFloat = view?.infiniteHeight == true ? targetSize.height : 0
+            return self.view?.body.systemLayoutSizeFitting(CGSize(width: width, height: height), withHorizontalFittingPriority: .fittingSizeLevel, verticalFittingPriority: .fittingSizeLevel) ?? .zero
+        }
         switch axis {
         case .horizontal:
             let verticalFittingPriority: UILayoutPriority = view?.infiniteHeight == true ? .required : .fittingSizeLevel

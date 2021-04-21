@@ -101,6 +101,31 @@ private struct StackBackgroundColorModifier: StackViewModifier {
     }
 }
 
+private struct DebugModifier: StackViewModifier {
+    
+    private var color: UIColor
+
+    init(color: UIColor) {
+        self.color = color
+    }
+    
+    func modify(_ view: StackView) -> StackView {
+        @discardableResult
+        func addBorder(view: UIView) -> StackView {
+            view.recursiveSubviews.forEach {
+                if $0.layer.borderWidth == 0 {
+                    addBorder(view: $0)
+                }
+            }
+            if view.layer.borderWidth == 0 {
+                return view.border(width: 1, color: color)
+            }
+            return view
+        }
+        return addBorder(view: view.body)
+    }
+}
+
 private struct StackCornersModifier: StackViewModifier {
     
     private var cornerRadius: CGFloat?
@@ -126,7 +151,70 @@ private struct StackPaddingModifier: StackViewModifier {
     }
     
     func modify(_ view: StackView) -> StackView {
-        view.body.layoutMargins = padding
+        switch view.body {
+        case is StackCollectionView:
+            (view.body as? StackCollectionView)?.collectionView.contentInset = padding
+            return view
+        case is UIStackView:
+            (view.body as? UIStackView)?.layoutMargins = padding
+            return view
+        case is StackEachView:
+            (view.body as? StackEachView)?.stackViews.forEach { $0.padding(padding) }
+            return view
+        case is FlatStackView:
+            (view.body as? FlatStackView)?.layoutMargins = padding
+            return view
+        case is PaddingView:
+            (view.body as? PaddingView)?.layoutMargins = padding
+            return view
+        default:
+            return PaddingStack(subview: view.body).padding(padding)
+        }
+    }
+}
+
+public struct AspectRatioModifier: StackViewModifier {
+    
+    public enum ContentMode {
+        case fit, fill
+    }
+    
+    private let aspectRatio: CGFloat?
+    private let contentMode: ContentMode
+    
+    init(_ aspectRatio: CGFloat? = nil, contentMode: ContentMode) {
+        self.aspectRatio = aspectRatio
+        self.contentMode = contentMode
+    }
+    
+    func modify(_ view: StackView) -> StackView {
+        var view = view
+        let identifier = "io.github.akbashev.stackview.anchorIdentifier.aspectRation"
+        if contentMode == .fill {
+            view.infiniteHeight = true
+            view.infiniteWidth = true
+        }
+        if var constraint = view.body.constraint(withIdentifier: identifier) {
+            constraint.isActive = false
+            constraint = NSLayoutConstraint(item: view.body,
+                                            attribute: .width,
+                                            relatedBy: .equal,
+                                            toItem: view.body,
+                                            attribute: .height,
+                                            multiplier: aspectRatio ?? 1,
+                                            constant: 0)
+            constraint.isActive = true
+        } else {
+            let constraint = NSLayoutConstraint(item: view.body,
+                                                attribute: .width,
+                                                relatedBy: .equal,
+                                                toItem: view.body,
+                                                attribute: .height,
+                                                multiplier: aspectRatio ?? 1,
+                                                constant: 0)
+            constraint.identifier = identifier
+            constraint.isActive = true
+        }
         return view
     }
 }
@@ -196,6 +284,27 @@ public extension StackView {
         let paddingModifier = StackPaddingModifier(padding: padding)
         return paddingModifier.modify(self)
     }
+    
+    @discardableResult
+    func padding(_ onePadding: CGFloat) -> StackView {
+        let paddingModifier = StackPaddingModifier(padding: UIEdgeInsets(top: onePadding,
+                                                                         left: onePadding,
+                                                                         bottom: onePadding,
+                                                                         right: onePadding))
+        return paddingModifier.modify(self)
+    }
+    
+    @discardableResult
+    func aspectRatio(_ aspectRatio: CGFloat? = nil, contentMode: AspectRatioModifier.ContentMode) -> StackView {
+        let modifier = AspectRatioModifier(aspectRatio, contentMode: contentMode)
+        return modifier.modify(self)
+    }
+    
+    @discardableResult
+    func debug(_ color: UIColor = .yellow) -> StackView {
+        let debugModifier = DebugModifier(color: color)
+        return debugModifier.modify(self)
+    }
 }
 
 fileprivate extension NSLayoutDimension {
@@ -209,5 +318,57 @@ fileprivate extension NSLayoutDimension {
 fileprivate extension UIView {
     func constraint(withIdentifier: String) -> NSLayoutConstraint? {
         return self.constraints.filter { $0.identifier == withIdentifier }.first
+    }
+}
+
+private extension UIView {
+    var recursiveSubviews: [UIView] {
+        switch self {
+        case is StackEachView:
+            guard let stackViews = (self as? StackEachView)?.stackViews else { return [] }
+            return stackViews.map { $0.body } + stackViews.flatMap { $0.body.recursiveSubviews }
+        case is UIStackView:
+            guard let arrangedSubviews = (self as? UIStackView)?.arrangedSubviews else { return [] }
+            return arrangedSubviews.map { $0 } + arrangedSubviews.flatMap { $0.recursiveSubviews }
+        case is StackCollectionView:
+            guard let stackSubviews = (self as? StackCollectionView)?.stackSubviews else { return [] }
+            return stackSubviews.map { $0.body } + stackSubviews.flatMap { $0.body.recursiveSubviews }
+        default:
+            return self.subviews + self.subviews.flatMap { $0.recursiveSubviews }
+        }
+    }
+}
+
+private struct PaddingStack: StackView {
+    
+    public var body: UIView
+    
+    init(subview: UIView) {
+        let view = PaddingView()
+        view.addSubview(subview)
+        self.body = view
+    }
+}
+
+private class PaddingView: UIView {
+    
+    private var _constraints: [NSLayoutConstraint] = []
+
+    override func updateConstraints() {
+        super.updateConstraints()
+
+        NSLayoutConstraint.deactivate(_constraints)
+        
+        self.subviews.forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            _constraints.append(contentsOf: [
+                $0.leftAnchor.constraint(equalTo: layoutMarginsGuide.leftAnchor),
+                $0.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+                $0.rightAnchor.constraint(equalTo: layoutMarginsGuide.rightAnchor),
+                $0.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
+            ])
+        }
+        
+        NSLayoutConstraint.activate(_constraints)
     }
 }

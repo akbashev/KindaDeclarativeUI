@@ -19,16 +19,20 @@ public struct GenerateView: StackView {
         self.infiniteWidth = view.infiniteWidth
     }
     
-    public init(stack: () -> StackView, updateView: StackView.Update? = nil) {
-        let view = stack().body
-        self.body = view
-        
-        self.infiniteHeight = view.infiniteHeight
-        self.infiniteWidth = view.infiniteWidth
-    }
-    
     public func update() {
         self.updateView?(self.body)
     }
 }
 
+public protocol MapStackView {}
+
+public extension MapStackView where Self: UIView {
+    func map(_ closure: (Self) throws -> Void) rethrows -> StackView {
+        try closure(self)
+        return GenerateView {
+            self
+        }
+    }
+}
+
+extension NSObject: MapStackView {}
