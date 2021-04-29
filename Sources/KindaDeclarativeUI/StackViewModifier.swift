@@ -69,14 +69,43 @@ private struct StackBorderModifier: StackViewModifier {
     }
     
     func modify(_ view: StackView) -> StackView {
-        if let borderWidth = self.borderWidth {
-            view.body.layer.borderWidth = borderWidth
-        }
-        if let borderColor = self.borderColor {
-            view.body.layer.borderColor = borderColor
-        }
-        if let masksToBounds = self.masksToBounds {
-            view.body.layer.masksToBounds = masksToBounds
+        switch view.body {
+        case is UIStackView:
+            if #available(iOS 14, *) {
+                if let borderWidth = self.borderWidth {
+                    view.body.layer.borderWidth = borderWidth
+                }
+                if let borderColor = self.borderColor {
+                    view.body.layer.borderColor = borderColor
+                }
+                if let masksToBounds = self.masksToBounds {
+                    view.body.layer.masksToBounds = masksToBounds
+                }
+            } else {
+                let backgroundView = view.body.subviews.first { $0 is BackgroundView } ?? BackgroundView()
+                backgroundView.removeFromSuperview()
+                if let borderWidth = self.borderWidth {
+                    backgroundView.layer.borderWidth = borderWidth
+                }
+                if let borderColor = self.borderColor {
+                    backgroundView.layer.borderColor = borderColor
+                }
+                if let masksToBounds = self.masksToBounds {
+                    backgroundView.layer.masksToBounds = masksToBounds
+                }
+                backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                view.body.insertSubview(backgroundView, at: 0)
+            }
+        default:
+            if let borderWidth = self.borderWidth {
+                view.body.layer.borderWidth = borderWidth
+            }
+            if let borderColor = self.borderColor {
+                view.body.layer.borderColor = borderColor
+            }
+            if let masksToBounds = self.masksToBounds {
+                view.body.layer.masksToBounds = masksToBounds
+            }
         }
         return view
     }
@@ -92,10 +121,20 @@ private struct StackBackgroundColorModifier: StackViewModifier {
     
     func modify(_ view: StackView) -> StackView {
         if let backgroundColor = self.backgroundColor {
-            let backgroundView = UIView()
-            backgroundView.backgroundColor = backgroundColor
-            backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            view.body.insertSubview(backgroundView, at: 0)
+            switch view.body {
+            case is UIStackView:
+                if #available(iOS 14, *) {
+                    view.body.backgroundColor = backgroundColor
+                } else {
+                    let backgroundView = view.body.subviews.first { $0 is BackgroundView } ?? BackgroundView()
+                    backgroundView.removeFromSuperview()
+                    backgroundView.backgroundColor = backgroundColor
+                    backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    view.body.insertSubview(backgroundView, at: 0)
+                }
+            default:
+                view.body.backgroundColor = backgroundColor
+            }
         }
         return view
     }
@@ -104,7 +143,7 @@ private struct StackBackgroundColorModifier: StackViewModifier {
 private struct DebugModifier: StackViewModifier {
     
     private var color: UIColor
-
+    
     init(color: UIColor) {
         self.color = color
     }
@@ -136,7 +175,20 @@ private struct StackCornersModifier: StackViewModifier {
     
     func modify(_ view: StackView) -> StackView {
         if let cornerRadius = self.cornerRadius {
-            view.body.layer.cornerRadius = cornerRadius
+            switch view.body {
+            case is UIStackView:
+                if #available(iOS 14, *) {
+                    view.body.layer.cornerRadius = cornerRadius
+                } else {
+                    let backgroundView = view.body.subviews.first { $0 is BackgroundView } ?? BackgroundView()
+                    backgroundView.removeFromSuperview()
+                    backgroundView.layer.cornerRadius = cornerRadius
+                    backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    view.body.insertSubview(backgroundView, at: 0)
+                }
+            default:
+                view.body.layer.cornerRadius = cornerRadius
+            }
         }
         return view
     }
@@ -219,6 +271,48 @@ public struct AspectRatioModifier: StackViewModifier {
     }
 }
 
+private struct ShadowModifier: StackViewModifier {
+    
+    private let color: UIColor
+    private let radius: CGFloat
+    private let x: CGFloat
+    private let y: CGFloat
+
+    init(color: UIColor = UIColor(white: 0, alpha: 0.33), radius: CGFloat, x: CGFloat = 0, y: CGFloat = 0) {
+        self.color = color
+        self.radius = radius
+        self.x = x
+        self.y = y
+    }
+    
+    func modify(_ view: StackView) -> StackView {
+        switch view.body {
+        case is UIStackView:
+            if #available(iOS 14, *) {
+                view.body.layer.shadowColor = self.color.cgColor
+                view.body.layer.shadowOpacity = Float(self.color.alphaComponent)
+                view.body.layer.shadowOffset = UIOffset(horizontal: x, vertical: y).size
+                view.body.layer.shadowRadius = self.radius
+            } else {
+                let backgroundView = view.body.subviews.first { $0 is BackgroundView } ?? BackgroundView()
+                backgroundView.removeFromSuperview()
+                backgroundView.layer.shadowColor = self.color.cgColor
+                backgroundView.layer.shadowOpacity = Float(self.color.alphaComponent)
+                backgroundView.layer.shadowOffset = UIOffset(horizontal: x, vertical: y).size
+                backgroundView.layer.shadowRadius = self.radius
+                backgroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                view.body.insertSubview(backgroundView, at: 0)
+            }
+        default:
+            view.body.layer.shadowColor = self.color.cgColor
+            view.body.layer.shadowOpacity = Float(self.color.alphaComponent)
+            view.body.layer.shadowOffset = UIOffset(horizontal: x, vertical: y).size
+            view.body.layer.shadowRadius = self.radius
+        }
+        return view
+    }
+}
+
 public extension StackView {
     
     @discardableResult
@@ -250,8 +344,8 @@ public extension StackView {
     }
     
     @discardableResult
-    func backgroundColor(_ backgroundColor: UIColor?) -> StackView {
-        let backgroundModifier = StackBackgroundColorModifier(backgroundColor: backgroundColor)
+    func background(_ color: UIColor?) -> StackView {
+        let backgroundModifier = StackBackgroundColorModifier(backgroundColor: color)
         return backgroundModifier.modify(self)
     }
     
@@ -305,6 +399,12 @@ public extension StackView {
         let debugModifier = DebugModifier(color: color)
         return debugModifier.modify(self)
     }
+    
+    @discardableResult
+    func shadow(color: UIColor = UIColor(white: 0, alpha: 0.33), radius: CGFloat, x: CGFloat = 0, y: CGFloat = 0) -> StackView {
+        let shadowModifier = ShadowModifier(color: color, radius: radius, x: x, y: y)
+        return shadowModifier.modify(self)
+    }
 }
 
 fileprivate extension NSLayoutDimension {
@@ -339,6 +439,8 @@ private extension UIView {
     }
 }
 
+private class BackgroundView: UIView {}
+
 private struct PaddingStack: StackView {
     
     public var body: UIView
@@ -353,10 +455,10 @@ private struct PaddingStack: StackView {
 private class PaddingView: UIView {
     
     private var _constraints: [NSLayoutConstraint] = []
-
+    
     override func updateConstraints() {
         super.updateConstraints()
-
+        
         NSLayoutConstraint.deactivate(_constraints)
         
         self.subviews.forEach {
@@ -370,5 +472,53 @@ private class PaddingView: UIView {
         }
         
         NSLayoutConstraint.activate(_constraints)
+    }
+}
+
+extension UIOffset {
+    var size: CGSize {
+        return CGSize(width: self.horizontal, height: self.vertical)
+    }
+}
+
+
+extension UIColor {
+
+    var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        var red: CGFloat = 0.0
+        var green: CGFloat = 0.0
+        var blue: CGFloat = 0.0
+        var alpha: CGFloat = 0.0
+        getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+
+        return (red: red, green: green, blue: blue, alpha: alpha)
+    }
+
+    var redComponent: CGFloat {
+        var red: CGFloat = 0.0
+        getRed(&red, green: nil, blue: nil, alpha: nil)
+
+        return red
+    }
+
+    var greenComponent: CGFloat {
+        var green: CGFloat = 0.0
+        getRed(nil, green: &green, blue: nil, alpha: nil)
+
+        return green
+    }
+
+    var blueComponent: CGFloat {
+        var blue: CGFloat = 0.0
+        getRed(nil, green: nil, blue: &blue, alpha: nil)
+
+        return blue
+    }
+
+    var alphaComponent: CGFloat {
+        var alpha: CGFloat = 0.0
+        getRed(nil, green: nil, blue: nil, alpha: &alpha)
+
+        return alpha
     }
 }

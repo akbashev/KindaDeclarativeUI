@@ -16,37 +16,40 @@ struct KDUIView: View {
     
     var body: some View {
         VStack {
-            StackList(axis: .vertical) {
-                StackEach(strings, id: \.self) { string in
-                    VerticalStack {
-                        HorizontalStack {
-                            VerticalStack(alignment: .center) {
-                                UILabel().map {
-                                    $0.text = string
-                                }.aspectRatio(1, contentMode: .fit)
-                                UILabel().map {
-                                    $0.numberOfLines = 0
-                                    $0.text = "Description is quite long"
-                                }.padding(8)
-                            }
-                            FlatStack(alignment: .trailingBottom) {
-                                UILabel().map {
-                                    $0.text = "Top thing here"
-                                }.padding()
-                                UILabel().map {
-                                    $0.text = "Bottom"
+            HStack {
+                StackList(axis: .vertical) {
+                    StackEach(strings, id: \.self) { string in
+                        VerticalStack {
+                            HorizontalStack {
+                                VerticalStack(alignment: .center) {
+                                    UILabel().map {
+                                        $0.text = string
+                                    }.aspectRatio(1, contentMode: .fit)
+                                    UILabel().map {
+                                        $0.numberOfLines = 0
+                                        $0.text = "Description is quite long"
+                                    }.padding(8)
                                 }
-                            }
-                            UILabel().map {
-                                $0.text = "next >"
-                            }.padding(4)
-                        }.debug()
-                        UIView().map {
-                            $0.backgroundColor = .gray
-                        }.frame(width: .infinity, height: 1)
+                                FlatStack(alignment: .trailingBottom) {
+                                    UILabel().map {
+                                        $0.text = "Top thing here"
+                                    }.padding()
+                                    UILabel().map {
+                                        $0.text = "Bottom"
+                                    }
+                                }
+                                UILabel().map {
+                                    $0.text = "next >"
+                                    $0.textColor = .white
+                                }.background(UIColor.red).shadow(radius: 12).padding(4)
+                            }.debug()
+                            UIView().map {
+                                $0.backgroundColor = .gray
+                            }.frame(width: .infinity, height: 1)
+                        }
                     }
-                }
-            }.swiftUIView
+                }.swiftUIView
+            }
         }
     }
 }
@@ -74,7 +77,7 @@ struct SwiftUIView: View {
                                 Text("Top thing here").padding().debugBorder()
                                 Text("Bottom").debugBorder()
                             }
-                            Text("next >").padding(4).debugBorder()
+                            Text("next >").background(Color.red).shadow(radius: 12).padding(4).debugBorder()
                         }.debugBorder()
                     }.debugBorder()
                 }
@@ -91,8 +94,8 @@ struct ContentView_Previews: PreviewProvider {
             KDUIView()
                 .previewLayout(PreviewLayout.device)
 
-//            SwiftUIView()
-//                .previewLayout(PreviewLayout.sizeThatFits)
+            SwiftUIView()
+                .previewLayout(PreviewLayout.sizeThatFits)
         }
     }
 }
