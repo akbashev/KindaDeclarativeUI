@@ -42,10 +42,12 @@ public struct StackList: StackView {
     }
 }
 
-class StackCollectionView: UIView {
+public class StackCollectionView: UIView {
     
-    let stackSubviews: [StackView]
+    var stackSubviews: [StackView]
     let axis: StackList.Axis
+    
+    public var didSelectItemAt: ((StackCollectionView, IndexPath) -> ())?
     
     var showContent: Bool {
         self.stackSubviews.count > 0
@@ -84,7 +86,7 @@ class StackCollectionView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews() {
+    override public func layoutSubviews() {
         super.layoutSubviews()
         self.collectionView.frame = self.bounds
         switch self.axis {
@@ -105,17 +107,21 @@ class StackCollectionView: UIView {
 }
 
 extension StackCollectionView: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard collectionView.bounds != .zero else { return .zero }
         return self.stackSubviews.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StackCollectionViewCell.identifier, for: indexPath) as! StackCollectionViewCell
         let stackView = self.stackSubviews[indexPath.item]
-        cell.view = stackView
         cell.axis = self.axis
+        cell.view = stackView.body
         return cell
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.didSelectItemAt?(self, indexPath)
     }
 }
 
@@ -124,12 +130,15 @@ class StackCollectionViewCell: UICollectionViewCell {
     static let identifier = "StackCollectionViewCell"
     
     var axis: StackList.Axis = .vertical
-    var view: StackView? {
-        didSet {
-            oldValue?.body.removeFromSuperview()
-            if let view = self.view {
+    var view: UIView? {
+        set {
+            self.view?.removeFromSuperview()
+            if let view = newValue {
                 view.add(to: self.contentView)
             }
+        }
+        get {
+            self.contentView.subviews.first
         }
     }
     

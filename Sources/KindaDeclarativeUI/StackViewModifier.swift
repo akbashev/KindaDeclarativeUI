@@ -407,6 +407,28 @@ public extension StackView {
     }
 }
 
+
+public extension StackList {
+    
+    @discardableResult
+    func didSelectItemAt(_ didSelectItemAt: ((StackCollectionView, IndexPath) -> ())?) -> StackList {
+        (self.body as? StackCollectionView)?.didSelectItemAt = didSelectItemAt
+        return self
+    }
+}
+
+public extension StackCollectionView {
+    
+    func reload(@StackScrollBuilder _ content: () -> StackView) {
+        self.stackSubviews = (content().body as? UIStackView)?.arrangedSubviews ?? []
+    }
+    
+    func reload<T>(@StackScrollBuilder _ children: () -> T) where T: StackView {
+        self.stackSubviews = (children().body as? UIStackView)?.arrangedSubviews ?? []
+    }
+}
+
+
 fileprivate extension NSLayoutDimension {
     @objc func constraint(equalToConstant constant: CGFloat, identifier: String) -> NSLayoutConstraint {
         let constraint = self.constraint(equalToConstant: constant)
