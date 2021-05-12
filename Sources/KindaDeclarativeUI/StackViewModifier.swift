@@ -412,7 +412,14 @@ public extension StackList {
     
     @discardableResult
     func didSelectItemAt(_ didSelectItemAt: ((StackCollectionView, IndexPath) -> ())?) -> StackList {
-        (self.body as? StackCollectionView)?.didSelectItemAt = didSelectItemAt
+        self.collectionView.didSelectItemAt = didSelectItemAt
+        return self
+    }
+    
+    @available(iOS 11.0, *)
+    @discardableResult
+    func contentInsetAdjustmentBehavior(_ contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior) -> StackList {
+        self.collectionView.collectionView.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
         return self
     }
 }
