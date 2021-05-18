@@ -1,7 +1,7 @@
 # KindaDeclarativeUI
 
 An API to wrap `UIStackView` and replicate SwiftUI layout system.
-It's an early stage, API was more important than code in the beggining. So first I've immitated 
+It's an early stage, API was more important than code in the beggining. So first I've immitated all the aligments and layouting and code in some parts could look like a mess. Anyway, it's working 🙂 Just try!
 
 ```swift
   StackList {
