@@ -44,7 +44,7 @@ public struct VerticalStack: StackView {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct VerticalStackViewBuilder {
     
     public static func buildBlock(_ views: StackView?...) -> UIStackView {
