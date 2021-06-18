@@ -313,6 +313,22 @@ private struct ShadowModifier: StackViewModifier {
     }
 }
 
+
+private struct HiddenModifier: StackViewModifier {
+    
+    private let isHidden: Bool
+    
+    init(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
+    
+    func modify(_ view: StackView) -> StackView {
+        view.body.isHidden = self.isHidden
+        return view
+    }
+}
+
+
 public extension StackView {
     
     @discardableResult
@@ -404,6 +420,18 @@ public extension StackView {
     func shadow(color: UIColor = UIColor(white: 0, alpha: 0.33), radius: CGFloat, x: CGFloat = 0, y: CGFloat = 0) -> StackView {
         let shadowModifier = ShadowModifier(color: color, radius: radius, x: x, y: y)
         return shadowModifier.modify(self)
+    }
+    
+    @discardableResult
+    func hidden() -> StackView {
+        let modifier = HiddenModifier(isHidden: true)
+        return modifier.modify(self)
+    }
+    
+    @discardableResult
+    func isHidden(_ isHidden: Bool) -> StackView {
+        let modifier = HiddenModifier(isHidden: isHidden)
+        return modifier.modify(self)
     }
 }
 

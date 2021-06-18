@@ -38,6 +38,7 @@ public struct StackScroll: StackView {
     public var scrollView: UIScrollView
     
     public init(axis: StackScroll.Axis = .vertical,
+                showsIndicators: Bool = true,
                 stackView: StackView) {
         if let uiStackView = stackView.body as? UIStackView {
             uiStackView.axis = axis.uiStackViewAxis
@@ -63,6 +64,8 @@ public struct StackScroll: StackView {
         default:
             break
         }
+        self.scrollView.showsHorizontalScrollIndicator = showsIndicators
+        self.scrollView.showsVerticalScrollIndicator = showsIndicators
     }
 }
 
@@ -104,13 +107,19 @@ public struct StackScrollBuilder {
 public extension StackScroll {
     
     init(axis: StackScroll.Axis = .vertical,
+         showsIndicators: Bool = true,
          @StackScrollBuilder _ content: () -> StackView) {
-        self.init(axis: axis, stackView: content())
+        self.init(axis: axis,
+                  showsIndicators: showsIndicators,
+                  stackView: content())
     }
     
     init<T>(axis: StackScroll.Axis = .vertical,
+            showsIndicators: Bool = true,
             @StackScrollBuilder _ children: () -> T) where T: StackView {
-        self.init(axis: axis, stackView: children())
+        self.init(axis: axis,
+                  showsIndicators: showsIndicators,
+                  stackView: children())
     }
     
 }

@@ -44,8 +44,39 @@ public struct StackList: StackView {
 
 public class StackCollectionView: UIView {
     
-    var stackSubviews: [StackView]
-    let axis: StackList.Axis
+    public var stackSubviews: [StackView]
+    
+    public func insert(_ items: [StackView]) {
+        self.stackSubviews.append(contentsOf: items)
+        self.collectionView.reloadData()
+    }
+    
+    public func insert(_ item: StackView, at index: Int) {
+        self.collectionView.performBatchUpdates({
+            self.stackSubviews.insert(item, at: index)
+        }, completion: {_ in
+            UIView.animate(withDuration: 0.25, animations: {
+                self.collectionView.insertItems(at: [IndexPath(item: index, section: 0)])
+            })
+        })
+    }
+    
+    public func remove(at index: Int) {
+        self.collectionView.performBatchUpdates({
+            self.stackSubviews.remove(at: index)
+        }, completion: {_ in
+            UIView.animate(withDuration: 0.25, animations: {
+                self.collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+            })
+        })
+    }
+    
+    public func removeAll() {
+        self.stackSubviews.removeAll()
+        self.collectionView.reloadData()
+    }
+    
+    public let axis: StackList.Axis
     
     public var didSelectItemAt: ((StackCollectionView, IndexPath) -> ())?
     
@@ -53,7 +84,7 @@ public class StackCollectionView: UIView {
         self.stackSubviews.count > 0
     }
     
-    lazy var collectionView: UICollectionView = {
+    public lazy var collectionView: UICollectionView = {
         let view = UICollectionView(frame: self.bounds, collectionViewLayout: self.collectionViewLayout)
         view.backgroundColor = .clear
         view.dataSource = self
@@ -182,11 +213,11 @@ public extension StackList {
 extension UICollectionView {
     var widestCellWidth: CGFloat {
         let insets = contentInset.left + contentInset.right
-        return bounds.width - insets
+        return max(0, bounds.width - insets)
     }
     
     var widestCellHeight: CGFloat {
         let insets = contentInset.top + contentInset.bottom
-        return bounds.height - insets
+        return max(0, bounds.height - insets)
     }
 }
