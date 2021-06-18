@@ -123,7 +123,7 @@ class FlatStackView: UIView {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct FlatStackViewBuilder {
     
     public static func buildBlock(_ views: StackView?...) -> StackView {

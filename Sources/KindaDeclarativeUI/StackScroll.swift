@@ -69,7 +69,7 @@ public struct StackScroll: StackView {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct StackScrollBuilder {
     
     public static func buildBlock(_ views: StackView?...) -> StackView {

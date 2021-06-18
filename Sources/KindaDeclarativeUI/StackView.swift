@@ -77,7 +77,7 @@ public extension StackView {
 }
 
 extension NSLayoutConstraint {
-    func with(priority p: UILayoutPriority) -> NSLayoutConstraint {
+    internal func with(priority p: UILayoutPriority) -> NSLayoutConstraint {
         priority = p
         return self
     }
