@@ -37,8 +37,9 @@ public struct StackList: StackView {
     var collectionView: StackCollectionView
     
     public init(axis: StackList.Axis = .vertical,
+                spacing: CGFloat = 8.0,
                 stackView: StackView) {
-        self.collectionView = StackCollectionView(stackSubviews: (stackView.body as? UIStackView)?.arrangedSubviews ?? [], axis: axis)
+        self.collectionView = StackCollectionView(stackSubviews: (stackView.body as? UIStackView)?.arrangedSubviews ?? [], axis: axis, spacing: spacing)
     }
 }
 
@@ -77,6 +78,7 @@ public class StackCollectionView: UIView {
     }
     
     public let axis: StackList.Axis
+    public let spacing: CGFloat
     
     public var didSelectItemAt: ((StackCollectionView, IndexPath) -> ())?
     
@@ -101,13 +103,14 @@ public class StackCollectionView: UIView {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = self.axis.uiStackViewAxis
         layout.headerReferenceSize = .zero
-        layout.minimumLineSpacing = 0
+        layout.minimumLineSpacing = self.spacing
         layout.estimatedItemSize = CGSize(width: 100, height: 100)
         return layout
     }()
     
-    init(stackSubviews: [StackView] = [], axis: StackList.Axis) {
+    init(stackSubviews: [StackView] = [], axis: StackList.Axis, spacing: CGFloat) {
         self.axis = axis
+        self.spacing = spacing
         self.stackSubviews = stackSubviews
         super.init(frame: .zero)
         self.addSubview(self.collectionView)
@@ -192,20 +195,34 @@ class StackCollectionViewCell: UICollectionViewCell {
             let horizontalFittingPriority: UILayoutPriority = view?.infiniteWidth == true ? .required : .fittingSizeLevel
             return self.view?.body.systemLayoutSizeFitting(CGSize(width: targetSize.width, height: 0), withHorizontalFittingPriority: horizontalFittingPriority, verticalFittingPriority: .fittingSizeLevel) ?? .zero
         }
-
+        
     }
 }
 
 public extension StackList {
     
-    init(axis: StackList.Axis = .vertical,
-         @StackScrollBuilder _ content: () -> StackView) {
-        self.init(axis: axis, stackView: content())
+    init(
+        axis: StackList.Axis = .vertical,
+        spacing: CGFloat = 8.0,
+        @StackScrollBuilder _ content: () -> StackView
+    ) {
+        self.init(
+            axis: axis,
+            spacing: spacing,
+            stackView: content()
+        )
     }
     
-    init<T>(axis: StackList.Axis = .vertical,
-            @StackScrollBuilder _ children: () -> T) where T: StackView {
-        self.init(axis: axis, stackView: children())
+    init<T>(
+        axis: StackList.Axis = .vertical,
+        spacing: CGFloat = 8.0,
+        @StackScrollBuilder _ children: () -> T
+    ) where T: StackView {
+        self.init(
+            axis: axis,
+            spacing: spacing,
+            stackView: children()
+        )
     }
     
 }
