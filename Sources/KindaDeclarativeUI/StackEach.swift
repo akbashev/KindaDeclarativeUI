@@ -23,7 +23,7 @@ class StackEachView: UIView {
     var stackViews: [StackView] = []
 }
 
-extension StackEach where ID == Data.Element.ID, Content: StackView, Data.Element : Identifiable {
+extension StackEach where ID == Data.Element.ID, Content: StackView, Data.Element : StackIdentifiable {
     public init(_ data: Data, content: @escaping (Data.Element) -> Content) {
         let view = StackEachView()
         data.forEach { item in
@@ -52,7 +52,7 @@ extension StackEach where Data == Range<Int>, ID == Int, Content: StackView {
     }
 }
 
-public protocol Identifiable {
+public protocol StackIdentifiable {
     
     /// A type representing the stable identity of the entity associated with `self`.
     associatedtype ID: Hashable
@@ -61,7 +61,7 @@ public protocol Identifiable {
     var id: ID { get }
 }
 
-public extension Identifiable where Self: AnyObject {
+public extension StackIdentifiable where Self: AnyObject {
     var id: ObjectIdentifier {
         return ObjectIdentifier(self)
     }
