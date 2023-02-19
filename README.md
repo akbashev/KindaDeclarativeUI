@@ -1,7 +1,7 @@
 # KindaDeclarativeUI
 
 An API to wrap `UIStackView` and replicate SwiftUI layout system.
-It's an early stage, API was more important than code in the beggining. So first I've immitated all the aligments and layouting and code in some parts could look like a mess. Anyway, it's working 🙂 Just try!
+It's an early stage, API was more important than code in the beggining. First I've immitated all the aligments and layouting, and code in some parts could look like a mess. Anyway, it's working 🙂 Just give it a try!
 
 ```swift
   StackList {
@@ -30,7 +30,7 @@ It's an early stage, API was more important than code in the beggining. So first
   .add(to: self)
 ```
 
-All UIKit views can bet at put into Stack as main idea is all views are inherit from `StackView` protocol. You can both define them before or just use `UIView().map` extension.
+All UIKit views can be used in Stack, as main idea is `View` inherits `StackView` protocol. You initialise view outside of layouting, or just simple use `UIView().map` extension function to provide a desired view.
 
 - API inspired by SwiftUI
 - Views are centered by default
