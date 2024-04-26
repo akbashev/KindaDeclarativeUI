@@ -10,7 +10,7 @@ import UIKit
 
 public struct StackScroll: StackView {
     
-    public struct Axis: OptionSet {
+    public struct Axis: Sendable, OptionSet {
         public let rawValue: Int
         public init(rawValue: Int) {
             self.rawValue = rawValue
@@ -72,6 +72,7 @@ public struct StackScroll: StackView {
 @resultBuilder
 public struct StackScrollBuilder {
     
+    @MainActor
     public static func buildBlock(_ views: StackView?...) -> StackView {
         func checkIfStackView(_ views: [StackView]) -> StackView? {
             guard views.count == 1 else {

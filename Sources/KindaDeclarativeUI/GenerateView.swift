@@ -27,7 +27,8 @@ public struct GenerateView: StackView {
 public protocol MapStackView {}
 
 public extension MapStackView where Self: UIView {
-    func map(_ closure: (Self) throws -> Void) rethrows -> StackView {
+    @MainActor
+    func map(_ closure: @MainActor (Self) throws -> Void) rethrows -> StackView {
         try closure(self)
         return GenerateView {
             self

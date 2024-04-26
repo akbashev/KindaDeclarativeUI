@@ -72,6 +72,7 @@ private struct StackViewContentView: View {
         }
     }
     
+    @MainActor
     func makeView(_ geometry: GeometryProxy) -> some View {
         let targetSize = CGSize(width: self.view.infiniteWidth ? geometry.size.width : UIView.layoutFittingCompressedSize.width, height: self.view.infiniteHeight ? geometry.size.height : UIView.layoutFittingCompressedSize.height)
         let horizontalFittingPriority: UILayoutPriority = self.view.infiniteWidth ? .required : .fittingSizeLevel

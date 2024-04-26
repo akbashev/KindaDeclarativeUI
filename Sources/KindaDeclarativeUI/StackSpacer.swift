@@ -28,6 +28,7 @@ public struct StackSpacer: StackView {
     }
 }
 
+@MainActor
 class StackSpacerView: UIView {}
 
 extension UIView {

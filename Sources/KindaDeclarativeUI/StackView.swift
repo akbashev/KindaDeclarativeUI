@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol StackView {
     typealias Update = (UIView) -> ()
     
@@ -22,6 +23,7 @@ extension UIView: StackView {
     public var body: UIView { return self }
 }
 
+@MainActor
 private struct StackViewAssociationKey {
     static var infiniteWidth: [UIView: Bool] = [:]
     static var infiniteHeight: [UIView: Bool] = [:]

@@ -47,6 +47,7 @@ public struct VerticalStack: StackView {
 @resultBuilder
 public struct VerticalStackViewBuilder {
     
+    @MainActor
     public static func buildBlock(_ views: StackView?...) -> UIStackView {
         let views = views.compactMap { view -> [StackView] in
             if let stackEachView = view?.body as? StackEachView {

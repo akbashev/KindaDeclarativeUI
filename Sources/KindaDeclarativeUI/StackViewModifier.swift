@@ -9,7 +9,7 @@
 import UIKit
 
 protocol StackViewModifier {
-    func modify(_ view: StackView) -> StackView
+    @MainActor func modify(_ view: StackView) -> StackView
 }
 
 private extension StackView {
@@ -18,6 +18,7 @@ private extension StackView {
     }
 }
 
+@MainActor
 private struct StackSizeModifier: StackViewModifier {
     
     private var width: CGFloat?
@@ -54,6 +55,7 @@ private struct StackSizeModifier: StackViewModifier {
     }
 }
 
+@MainActor
 private struct StackBorderModifier: StackViewModifier {
     
     private var borderWidth: CGFloat?
@@ -111,6 +113,7 @@ private struct StackBorderModifier: StackViewModifier {
     }
 }
 
+@MainActor
 private struct StackBackgroundColorModifier: StackViewModifier {
     
     private var backgroundColor: UIColor?
@@ -140,6 +143,7 @@ private struct StackBackgroundColorModifier: StackViewModifier {
     }
 }
 
+@MainActor
 private struct DebugModifier: StackViewModifier {
     
     private var color: UIColor
@@ -165,6 +169,7 @@ private struct DebugModifier: StackViewModifier {
     }
 }
 
+@MainActor
 private struct StackCornersModifier: StackViewModifier {
     
     private var cornerRadius: CGFloat?
@@ -194,6 +199,7 @@ private struct StackCornersModifier: StackViewModifier {
     }
 }
 
+@MainActor
 private struct StackPaddingModifier: StackViewModifier {
     
     private let padding: UIEdgeInsets
@@ -225,6 +231,7 @@ private struct StackPaddingModifier: StackViewModifier {
     }
 }
 
+@MainActor
 public struct AspectRatioModifier: StackViewModifier {
     
     public enum ContentMode {
@@ -271,6 +278,7 @@ public struct AspectRatioModifier: StackViewModifier {
     }
 }
 
+@MainActor
 private struct ShadowModifier: StackViewModifier {
     
     private let color: UIColor
@@ -313,7 +321,7 @@ private struct ShadowModifier: StackViewModifier {
     }
 }
 
-
+@MainActor
 private struct HiddenModifier: StackViewModifier {
     
     private let isHidden: Bool

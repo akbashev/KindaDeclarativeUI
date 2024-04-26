@@ -9,7 +9,7 @@ import UIKit
 
 public struct StackList: StackView {
     
-    public struct Axis: OptionSet {
+    public struct Axis: Sendable, OptionSet {
         public let rawValue: Int
         public init(rawValue: Int) {
             self.rawValue = rawValue

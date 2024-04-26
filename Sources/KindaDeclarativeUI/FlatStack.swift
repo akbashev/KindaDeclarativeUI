@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 public struct FlatStack: StackView {
     
     public enum Alignment {
@@ -126,6 +127,7 @@ class FlatStackView: UIView {
 @resultBuilder
 public struct FlatStackViewBuilder {
     
+    @MainActor
     public static func buildBlock(_ views: StackView?...) -> StackView {
         var view = FlatStackView()
         view.body.layoutMargins = .zero
