@@ -1,39 +1,13 @@
-//
-//  File.swift
-//  
-//
-//  Created by Jaleel Akbashev on 14.03.21.
-//
-
 import UIKit
 
-public struct GenerateView: StackView {
-    public var body: UIView
-    public var updateView: StackView.Update? = nil
-    
-    public init(_ generate: () -> UIView, updateView: StackView.Update? = nil) {
-        let view = generate()
-        self.body = view
-        
-        self.infiniteHeight = view.infiniteHeight
-        self.infiniteWidth = view.infiniteWidth
-    }
-    
-    public func update() {
-        self.updateView?(self.body)
-    }
-}
+public protocol MappedView {}
 
-public protocol MapStackView {}
-
-public extension MapStackView where Self: UIView {
+public extension MappedView where Self: UIView {
     @MainActor
-    func map(_ closure: @MainActor (Self) throws -> Void) rethrows -> StackView {
+    func map(_ closure: @MainActor (Self) throws -> Void) rethrows -> Self {
         try closure(self)
-        return GenerateView {
-            self
-        }
+        return self
     }
 }
 
-extension NSObject: MapStackView {}
+extension UIView: MappedView {}
